@@ -46,7 +46,7 @@ body {
    ============================================ */
 @media print {
   @page {
-    size: landscape;
+    size: portrait;
     margin: 0.75in 0.5in 0.75in 0.5in;
   }
 
