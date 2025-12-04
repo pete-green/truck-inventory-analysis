@@ -5,9 +5,10 @@ import { Select } from '@/components/ui/select'
 import { FileUpload } from '@/components/ui/file-upload'
 import { SummaryCards } from './SummaryCards'
 import { IssueTable } from './IssueTable'
+import { PrintableReport } from './PrintableReport'
 import { parseOnHandFile } from '@/lib/excel-parser'
 import { runAnalysis, getAnalysisSummary } from '@/lib/analysis-engine'
-import { Loader2, AlertCircle, RotateCcw } from 'lucide-react'
+import { Loader2, AlertCircle, RotateCcw, Printer } from 'lucide-react'
 import type { Template, TemplateItem, AnalysisResult, AnalysisCategory } from '@/types'
 
 interface AnalysisWizardProps {
@@ -91,7 +92,12 @@ export function AnalysisWizard({ templates, getTemplateItems }: AnalysisWizardPr
     setError(null)
   }
 
+  const handlePrint = () => {
+    window.print()
+  }
+
   const summary = result ? getAnalysisSummary(result) : null
+  const selectedTemplate = templates.find((t) => t.id === selectedTemplateId)
 
   return (
     <div className="space-y-6">
@@ -169,29 +175,46 @@ export function AnalysisWizard({ templates, getTemplateItems }: AnalysisWizardPr
         </Card>
       ) : (
         <>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 no-print">
             <div>
               <h2 className="text-xl font-semibold">Analysis Results</h2>
               <p className="text-sm text-muted-foreground">
-                {templates.find((t) => t.id === selectedTemplateId)?.name} vs {file?.name}
+                {selectedTemplate?.name} vs {file?.name}
               </p>
             </div>
-            <Button variant="outline" onClick={handleReset}>
-              <RotateCcw className="h-4 w-4" />
-              New Analysis
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={handlePrint}>
+                <Printer className="h-4 w-4" />
+                Print Report
+              </Button>
+              <Button variant="outline" onClick={handleReset}>
+                <RotateCcw className="h-4 w-4" />
+                New Analysis
+              </Button>
+            </div>
           </div>
 
+          {/* Printable Report - only visible when printing */}
+          <PrintableReport
+            result={result}
+            templateName={selectedTemplate?.name || 'Unknown Template'}
+            fileName={file?.name || 'Unknown File'}
+          />
+
           {summary && (
-            <SummaryCards
-              summary={summary}
-              activeCategory={activeCategory}
-              onCategoryClick={setActiveCategory}
-            />
+            <div className="no-print">
+              <SummaryCards
+                summary={summary}
+                activeCategory={activeCategory}
+                onCategoryClick={setActiveCategory}
+              />
+            </div>
           )}
 
           {activeCategory && (
-            <IssueTable category={activeCategory} result={result} />
+            <div className="no-print">
+              <IssueTable category={activeCategory} result={result} />
+            </div>
           )}
         </>
       )}
