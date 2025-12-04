@@ -47,7 +47,7 @@ body {
 @media print {
   @page {
     size: landscape;
-    margin: 0.75in 0.5in 0.6in 0.5in;
+    margin: 0.75in 0.5in 0.75in 0.5in;
   }
 
   /* Hide screen-only elements */
@@ -157,7 +157,7 @@ body {
      ========================================== */
   .print-content {
     padding-top: 60pt; /* Space for fixed header */
-    padding-bottom: 24pt; /* Space for fixed footer */
+    padding-bottom: 40pt; /* Space for fixed footer */
   }
 
   /* Print Section */
@@ -215,6 +215,7 @@ body {
     width: 100%;
     border-collapse: collapse;
     font-size: 8pt;
+    margin-bottom: 8pt;
   }
 
   .print-table th {
