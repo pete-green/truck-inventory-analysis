@@ -47,7 +47,7 @@ body {
 @media print {
   @page {
     size: portrait;
-    margin: 0.75in 0.5in 0.75in 0.5in;
+    margin: 0.5in;
   }
 
   /* Hide screen-only elements */
@@ -82,20 +82,39 @@ body {
   }
 
   /* ==========================================
-     RUNNING HEADER - appears on every page
+     TABLE-BASED REPEATING HEADER/FOOTER
+     Using thead/tfoot for browser-native repeating
      ========================================== */
-  .running-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    padding: 8pt 0 6pt 0;
-    border-bottom: 2px solid #333;
-    z-index: 1000;
+  .print-wrapper-table {
+    width: 100%;
+    border-collapse: collapse;
   }
 
-  .running-header-top {
+  .print-wrapper-table > thead,
+  .print-wrapper-table > tfoot {
+    display: table-header-group;
+  }
+
+  .print-wrapper-table > tfoot {
+    display: table-footer-group;
+  }
+
+  .print-wrapper-table > thead td,
+  .print-wrapper-table > tfoot td,
+  .print-wrapper-table > tbody td {
+    padding: 0;
+  }
+
+  /* ==========================================
+     PAGE HEADER - repeats via thead
+     ========================================== */
+  .page-header {
+    padding: 0 0 8pt 0;
+    border-bottom: 2pt solid #333;
+    margin-bottom: 12pt;
+  }
+
+  .page-header-top {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -113,56 +132,40 @@ body {
     color: #666;
   }
 
-  .running-header-bottom {
+  .page-header-bottom {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 6pt;
-    font-size: 8pt;
-  }
-
-  .header-info {
-    color: #333;
-  }
-
-  .header-stat {
-    font-weight: 600;
+    gap: 4pt;
+    font-size: 7.5pt;
   }
 
   .header-divider {
-    color: #ccc;
+    color: #bbb;
   }
 
   /* ==========================================
-     RUNNING FOOTER - appears on every page
+     PAGE FOOTER - repeats via tfoot
      ========================================== */
-  .running-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: white;
-    padding: 4pt 0;
-    border-top: 1px solid #ddd;
+  .page-footer {
+    padding: 8pt 0 0 0;
+    border-top: 1pt solid #ddd;
     text-align: center;
-    z-index: 1000;
-  }
-
-  .footer-text {
     font-size: 7pt;
     color: #999;
+    margin-top: 12pt;
   }
 
   /* ==========================================
-     MAIN CONTENT - with proper margins
+     MAIN CONTENT
      ========================================== */
   .print-content {
-    padding-top: 60pt; /* Space for fixed header */
-    padding-bottom: 40pt; /* Space for fixed footer */
+    padding: 0;
   }
 
   /* Print Section */
   .print-section {
-    margin-bottom: 16pt;
+    margin-bottom: 14pt;
   }
 
   .print-section:last-of-type {
@@ -171,42 +174,42 @@ body {
 
   /* Section Header */
   .section-header {
-    background: #f8f8f8;
-    border-left: 4pt solid #333;
-    padding: 6pt 10pt;
-    margin-bottom: 6pt;
+    background: #f5f5f5;
+    border-left: 3pt solid #333;
+    padding: 5pt 8pt;
+    margin-bottom: 5pt;
     break-after: avoid;
   }
 
   .section-title {
-    font-size: 10pt;
+    font-size: 9pt;
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 6pt;
+    gap: 5pt;
   }
 
   .section-indicator {
     display: inline-block;
-    width: 8pt;
-    height: 8pt;
+    width: 7pt;
+    height: 7pt;
     border-radius: 50%;
   }
 
   .section-description {
-    font-size: 7pt;
+    font-size: 6.5pt;
     color: #666;
     margin-top: 2pt;
-    margin-left: 14pt;
+    margin-left: 12pt;
   }
 
   /* Empty Section */
   .empty-section {
-    padding: 10pt;
+    padding: 8pt;
     text-align: center;
     color: #999;
     font-style: italic;
-    font-size: 8pt;
+    font-size: 7pt;
     border: 1px dashed #ccc;
   }
 
@@ -214,23 +217,23 @@ body {
   .print-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 8pt;
-    margin-bottom: 8pt;
+    font-size: 7.5pt;
+    margin-bottom: 6pt;
   }
 
   .print-table th {
-    background: #eee;
+    background: #e8e8e8;
     border: 1px solid #ccc;
-    padding: 4pt 6pt;
+    padding: 3pt 5pt;
     text-align: left;
     font-weight: 600;
-    font-size: 7pt;
+    font-size: 6.5pt;
     text-transform: uppercase;
   }
 
   .print-table td {
     border: 1px solid #ddd;
-    padding: 3pt 6pt;
+    padding: 2.5pt 5pt;
     vertical-align: top;
   }
 
@@ -240,10 +243,10 @@ body {
 
   .print-table .font-mono {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 7pt;
+    font-size: 6.5pt;
   }
 
-  /* Table header group for repeating headers */
+  /* Table header group for repeating headers on data tables */
   .print-table thead {
     display: table-header-group;
   }
@@ -253,8 +256,9 @@ body {
   }
 
   /* Page break controls */
-  .print-section {
+  .section-header {
     break-inside: avoid;
+    break-after: avoid;
   }
 
   .print-table {
@@ -264,5 +268,10 @@ body {
   .print-table tr {
     break-inside: avoid;
     break-after: auto;
+  }
+
+  /* Keep section header with at least some content */
+  .print-section {
+    break-inside: auto;
   }
 }
