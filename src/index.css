@@ -47,7 +47,7 @@ body {
 @media print {
   @page {
     size: landscape;
-    margin: 0.5in 0.5in 0.75in 0.5in;
+    margin: 0.75in 0.5in 0.6in 0.5in;
   }
 
   /* Hide screen-only elements */
@@ -69,8 +69,10 @@ body {
   body {
     background: white !important;
     color: black !important;
-    font-size: 10pt;
-    line-height: 1.4;
+    font-size: 9pt;
+    line-height: 1.3;
+    margin: 0;
+    padding: 0;
   }
 
   /* Printable Report Container */
@@ -79,57 +81,88 @@ body {
     padding: 0;
   }
 
-  /* Report Header */
-  .report-header {
-    text-align: center;
+  /* ==========================================
+     RUNNING HEADER - appears on every page
+     ========================================== */
+  .running-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 8pt 0 6pt 0;
     border-bottom: 2px solid #333;
-    padding-bottom: 12pt;
-    margin-bottom: 16pt;
+    z-index: 1000;
   }
 
-  .report-header h1 {
-    font-size: 18pt;
-    font-weight: 700;
-    margin: 0 0 8pt 0;
-    letter-spacing: 1px;
-  }
-
-  .report-meta {
+  .running-header-top {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12pt;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4pt;
+  }
+
+  .report-name {
+    font-size: 14pt;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .report-date {
     font-size: 9pt;
+    color: #666;
+  }
+
+  .running-header-bottom {
+    display: flex;
+    align-items: center;
+    gap: 6pt;
+    font-size: 8pt;
+  }
+
+  .header-info {
     color: #333;
   }
 
-  .meta-item {
-    display: flex;
-    gap: 4pt;
-  }
-
-  .meta-label {
+  .header-stat {
     font-weight: 600;
   }
 
-  .meta-value {
-    font-weight: 400;
+  .header-divider {
+    color: #ccc;
   }
 
-  .meta-divider {
+  /* ==========================================
+     RUNNING FOOTER - appears on every page
+     ========================================== */
+  .running-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    padding: 4pt 0;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    z-index: 1000;
+  }
+
+  .footer-text {
+    font-size: 7pt;
     color: #999;
   }
 
-  .report-summary {
-    margin-top: 8pt;
-    font-size: 10pt;
-    font-weight: 500;
+  /* ==========================================
+     MAIN CONTENT - with proper margins
+     ========================================== */
+  .print-content {
+    padding-top: 60pt; /* Space for fixed header */
+    padding-bottom: 24pt; /* Space for fixed footer */
   }
 
   /* Print Section */
   .print-section {
-    margin-bottom: 20pt;
-    page-break-inside: avoid;
+    margin-bottom: 16pt;
   }
 
   .print-section:last-of-type {
@@ -138,41 +171,42 @@ body {
 
   /* Section Header */
   .section-header {
-    background: #f5f5f5;
+    background: #f8f8f8;
     border-left: 4pt solid #333;
-    padding: 8pt 12pt;
-    margin-bottom: 8pt;
+    padding: 6pt 10pt;
+    margin-bottom: 6pt;
+    break-after: avoid;
   }
 
   .section-title {
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 700;
     display: flex;
     align-items: center;
-    gap: 8pt;
+    gap: 6pt;
   }
 
   .section-indicator {
     display: inline-block;
-    width: 10pt;
-    height: 10pt;
+    width: 8pt;
+    height: 8pt;
     border-radius: 50%;
   }
 
   .section-description {
-    font-size: 8pt;
+    font-size: 7pt;
     color: #666;
     margin-top: 2pt;
-    margin-left: 18pt;
+    margin-left: 14pt;
   }
 
   /* Empty Section */
   .empty-section {
-    padding: 12pt;
+    padding: 10pt;
     text-align: center;
     color: #999;
     font-style: italic;
-    font-size: 9pt;
+    font-size: 8pt;
     border: 1px dashed #ccc;
   }
 
@@ -180,22 +214,22 @@ body {
   .print-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 9pt;
+    font-size: 8pt;
   }
 
   .print-table th {
-    background: #e5e5e5;
+    background: #eee;
     border: 1px solid #ccc;
-    padding: 6pt 8pt;
+    padding: 4pt 6pt;
     text-align: left;
     font-weight: 600;
-    font-size: 8pt;
+    font-size: 7pt;
     text-transform: uppercase;
   }
 
   .print-table td {
     border: 1px solid #ddd;
-    padding: 5pt 8pt;
+    padding: 3pt 6pt;
     vertical-align: top;
   }
 
@@ -205,38 +239,21 @@ body {
 
   .print-table .font-mono {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 8pt;
+    font-size: 7pt;
   }
 
-  /* Report Footer */
-  .report-footer {
-    position: fixed;
-    bottom: 0.25in;
-    left: 0.5in;
-    right: 0.5in;
-    text-align: center;
-    font-size: 8pt;
-    color: #999;
-    border-top: 1px solid #eee;
-    padding-top: 8pt;
+  /* Table header group for repeating headers */
+  .print-table thead {
+    display: table-header-group;
   }
 
-  /* Page Numbers - uses CSS counters */
-  @page {
-    @bottom-right {
-      content: "Page " counter(page) " of " counter(pages);
-      font-size: 9pt;
-      color: #666;
-    }
+  .print-table tbody {
+    display: table-row-group;
   }
 
-  /* Ensure page breaks work properly */
+  /* Page break controls */
   .print-section {
     break-inside: avoid;
-  }
-
-  .section-header {
-    break-after: avoid;
   }
 
   .print-table {
@@ -245,9 +262,6 @@ body {
 
   .print-table tr {
     break-inside: avoid;
-  }
-
-  .print-table thead {
-    display: table-header-group;
+    break-after: auto;
   }
 }

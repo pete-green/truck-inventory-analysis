@@ -6,6 +6,7 @@ import { FileUpload } from '@/components/ui/file-upload'
 import { SummaryCards } from './SummaryCards'
 import { IssueTable } from './IssueTable'
 import { PrintableReport } from './PrintableReport'
+import { PrintDialog } from './PrintDialog'
 import { parseOnHandFile } from '@/lib/excel-parser'
 import { runAnalysis, getAnalysisSummary } from '@/lib/analysis-engine'
 import { Loader2, AlertCircle, RotateCcw, Printer } from 'lucide-react'
@@ -23,6 +24,8 @@ export function AnalysisWizard({ templates, getTemplateItems }: AnalysisWizardPr
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [activeCategory, setActiveCategory] = useState<AnalysisCategory | null>(null)
+  const [showPrintDialog, setShowPrintDialog] = useState(false)
+  const [reportName, setReportName] = useState('')
 
   const templateOptions = templates.map((t) => ({
     value: t.id,
@@ -92,8 +95,17 @@ export function AnalysisWizard({ templates, getTemplateItems }: AnalysisWizardPr
     setError(null)
   }
 
-  const handlePrint = () => {
-    window.print()
+  const handlePrintClick = () => {
+    setShowPrintDialog(true)
+  }
+
+  const handlePrintConfirm = (name: string) => {
+    setReportName(name)
+    setShowPrintDialog(false)
+    // Use setTimeout to ensure state is updated before printing
+    setTimeout(() => {
+      window.print()
+    }, 100)
   }
 
   const summary = result ? getAnalysisSummary(result) : null
@@ -183,7 +195,7 @@ export function AnalysisWizard({ templates, getTemplateItems }: AnalysisWizardPr
               </p>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handlePrint}>
+              <Button variant="outline" onClick={handlePrintClick}>
                 <Printer className="h-4 w-4" />
                 Print Report
               </Button>
@@ -194,11 +206,21 @@ export function AnalysisWizard({ templates, getTemplateItems }: AnalysisWizardPr
             </div>
           </div>
 
+          {/* Print Dialog */}
+          <PrintDialog
+            isOpen={showPrintDialog}
+            onClose={() => setShowPrintDialog(false)}
+            onPrint={handlePrintConfirm}
+            templateName={selectedTemplate?.name || 'Unknown Template'}
+            fileName={file?.name || 'Unknown File'}
+          />
+
           {/* Printable Report - only visible when printing */}
           <PrintableReport
             result={result}
             templateName={selectedTemplate?.name || 'Unknown Template'}
             fileName={file?.name || 'Unknown File'}
+            reportName={reportName || `${selectedTemplate?.name || 'Inventory'} Analysis`}
           />
 
           {summary && (

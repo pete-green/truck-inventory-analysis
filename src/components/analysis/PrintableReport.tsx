@@ -4,49 +4,57 @@ interface PrintableReportProps {
   result: AnalysisResult
   templateName: string
   fileName: string
+  reportName: string
 }
 
 const SECTION_CONFIG: {
   key: AnalysisCategory
   title: string
+  shortTitle: string
   description: string
   color: string
 }[] = [
   {
     key: 'overstocked',
     title: 'OVERSTOCKED ITEMS',
+    shortTitle: 'Over',
     description: 'Items exceeding maximum stock levels',
-    color: '#ea580c', // orange-600
+    color: '#ea580c',
   },
   {
     key: 'understocked',
     title: 'UNDERSTOCKED ITEMS',
+    shortTitle: 'Under',
     description: 'Items below minimum stock levels',
-    color: '#ca8a04', // yellow-600
+    color: '#ca8a04',
   },
   {
     key: 'not_in_template',
     title: 'ITEMS NOT IN TEMPLATE',
+    shortTitle: 'Not In Template',
     description: 'Items on truck that should not be there',
-    color: '#dc2626', // red-600
+    color: '#dc2626',
   },
   {
     key: 'negative',
     title: 'NEGATIVE QUANTITY ITEMS',
+    shortTitle: 'Negative',
     description: 'Items with negative inventory (data errors)',
-    color: '#9333ea', // purple-600
+    color: '#9333ea',
   },
   {
     key: 'missing',
     title: 'MISSING ITEMS',
+    shortTitle: 'Missing',
     description: 'Items in template but not found on truck',
-    color: '#2563eb', // blue-600
+    color: '#2563eb',
   },
   {
     key: 'correct',
     title: 'CORRECTLY STOCKED ITEMS',
+    shortTitle: 'Correct',
     description: 'Items within acceptable min/max range',
-    color: '#16a34a', // green-600
+    color: '#16a34a',
   },
 ]
 
@@ -60,7 +68,7 @@ function AnalyzedItemTable({ items }: { items: AnalyzedItem[] }) {
           <th style={{ width: '12%', textAlign: 'right' }}>On Hand</th>
           <th style={{ width: '10%', textAlign: 'right' }}>Min</th>
           <th style={{ width: '10%', textAlign: 'right' }}>Max</th>
-          <th style={{ width: '13%', textAlign: 'right' }}>Difference</th>
+          <th style={{ width: '13%', textAlign: 'right' }}>Diff</th>
         </tr>
       </thead>
       <tbody>
@@ -172,62 +180,53 @@ function ReportSection({
   )
 }
 
-export function PrintableReport({ result, templateName, fileName }: PrintableReportProps) {
+export function PrintableReport({ result, templateName, fileName: _fileName, reportName }: PrintableReportProps) {
   const currentDate = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
   })
-
-  const totalItems =
-    result.overstocked.length +
-    result.understocked.length +
-    result.not_in_template.length +
-    result.negative.length +
-    result.missing.length +
-    result.correct.length
 
   return (
     <div className="print-only printable-report">
-      {/* Report Header */}
-      <div className="report-header">
-        <h1>TRUCK INVENTORY ANALYSIS REPORT</h1>
-        <div className="report-meta">
-          <div className="meta-item">
-            <span className="meta-label">Template:</span>
-            <span className="meta-value">{templateName}</span>
-          </div>
-          <div className="meta-divider">|</div>
-          <div className="meta-item">
-            <span className="meta-label">Analyzed File:</span>
-            <span className="meta-value">{fileName}</span>
-          </div>
-          <div className="meta-divider">|</div>
-          <div className="meta-item">
-            <span className="meta-label">Date:</span>
-            <span className="meta-value">{currentDate}</span>
-          </div>
+      {/* Running Header - appears on every page */}
+      <div className="running-header">
+        <div className="running-header-top">
+          <div className="report-name">{reportName}</div>
+          <div className="report-date">{currentDate}</div>
         </div>
-        <div className="report-summary">
-          Total Items Analyzed: {totalItems}
+        <div className="running-header-bottom">
+          <span className="header-info">Template: {templateName}</span>
+          <span className="header-divider">|</span>
+          <span className="header-stat" style={{ color: '#ea580c' }}>Over: {result.overstocked.length}</span>
+          <span className="header-divider">|</span>
+          <span className="header-stat" style={{ color: '#ca8a04' }}>Under: {result.understocked.length}</span>
+          <span className="header-divider">|</span>
+          <span className="header-stat" style={{ color: '#dc2626' }}>Not in Tmpl: {result.not_in_template.length}</span>
+          <span className="header-divider">|</span>
+          <span className="header-stat" style={{ color: '#9333ea' }}>Negative: {result.negative.length}</span>
+          <span className="header-divider">|</span>
+          <span className="header-stat" style={{ color: '#2563eb' }}>Missing: {result.missing.length}</span>
+          <span className="header-divider">|</span>
+          <span className="header-stat" style={{ color: '#16a34a' }}>Correct: {result.correct.length}</span>
         </div>
       </div>
 
-      {/* All Sections */}
-      {SECTION_CONFIG.map((config) => (
-        <ReportSection
-          key={config.key}
-          config={config}
-          items={result[config.key]}
-          category={config.key}
-        />
-      ))}
+      {/* Main Content */}
+      <div className="print-content">
+        {SECTION_CONFIG.map((config) => (
+          <ReportSection
+            key={config.key}
+            config={config}
+            items={result[config.key]}
+            category={config.key}
+          />
+        ))}
+      </div>
 
-      {/* Report Footer */}
-      <div className="report-footer">
-        Generated by Truck Stock Analyzer
+      {/* Running Footer - appears on every page */}
+      <div className="running-footer">
+        <span className="footer-text">Truck Stock Analyzer</span>
       </div>
     </div>
   )
