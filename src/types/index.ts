@@ -62,3 +62,13 @@ export type AnalysisCategory =
   | 'missing'
   | 'correct'
   | 'consumable'
+
+export interface Truck {
+  id: string
+  truck_id: string
+  truck_number: string
+  description: string
+  current_tech: string | null
+  active: boolean
+  st_truck_id: string
+}

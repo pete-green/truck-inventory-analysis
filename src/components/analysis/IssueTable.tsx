@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   Table,
   TableBody,
@@ -9,9 +9,12 @@ import {
 } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Search, ArrowUpDown } from 'lucide-react'
+import { Search, ArrowUpDown, FileSpreadsheet } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import type { AnalysisResult, AnalysisCategory, AnalyzedItem, OnHandItem, TemplateItem } from '@/types'
+import { AdjustmentExportDialog } from './AdjustmentExportDialog'
+import { useTrucks } from '@/hooks/useTrucks'
+import { generateAdjustmentFile } from '@/lib/adjustment-export'
+import type { AnalysisResult, AnalysisCategory, AnalyzedItem, OnHandItem, TemplateItem, Truck } from '@/types'
 
 interface IssueTableProps {
   category: AnalysisCategory
@@ -35,8 +38,23 @@ export function IssueTable({ category, result }: IssueTableProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortField, setSortField] = useState<SortField>('item_code')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [showExportDialog, setShowExportDialog] = useState(false)
+  const [trucks, setTrucks] = useState<Truck[]>([])
+
+  const { fetchTrucks, loading: loadingTrucks } = useTrucks()
 
   const items = result[category]
+
+  // Fetch trucks when export dialog is opened
+  useEffect(() => {
+    if (showExportDialog && trucks.length === 0) {
+      fetchTrucks().then(setTrucks)
+    }
+  }, [showExportDialog, trucks.length, fetchTrucks])
+
+  const handleExport = (truck: Truck, date: Date) => {
+    generateAdjustmentFile(result.consumable, truck, date)
+  }
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -229,34 +247,58 @@ export function IssueTable({ category, result }: IssueTableProps) {
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <CardTitle className="text-lg">
-            {CATEGORY_TITLES[category]} ({filteredAndSortedItems.length})
-          </CardTitle>
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search items..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8"
-            />
+    <>
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <CardTitle className="text-lg">
+              {CATEGORY_TITLES[category]} ({filteredAndSortedItems.length})
+            </CardTitle>
+            <div className="flex items-center gap-2">
+              {category === 'consumable' && items.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowExportDialog(true)}
+                >
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Create Adjustment File
+                </Button>
+              )}
+              <div className="relative w-full sm:w-64">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search items..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {filteredAndSortedItems.length === 0 ? (
-          <p className="text-center py-8 text-muted-foreground">
-            {searchTerm ? 'No items match your search.' : 'No items in this category.'}
-          </p>
-        ) : (
-          <div className="rounded-md border">
-            {renderTable()}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        </CardHeader>
+        <CardContent>
+          {filteredAndSortedItems.length === 0 ? (
+            <p className="text-center py-8 text-muted-foreground">
+              {searchTerm ? 'No items match your search.' : 'No items in this category.'}
+            </p>
+          ) : (
+            <div className="rounded-md border">
+              {renderTable()}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Adjustment Export Dialog */}
+      <AdjustmentExportDialog
+        isOpen={showExportDialog}
+        onClose={() => setShowExportDialog(false)}
+        onExport={handleExport}
+        trucks={trucks}
+        loadingTrucks={loadingTrucks}
+        consumableCount={result.consumable.length}
+      />
+    </>
   )
 }
