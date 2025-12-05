@@ -82,7 +82,7 @@ export function generateAdjustmentFile(
 
   // Create workbook and add the worksheet
   const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Adjustments')
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'AdjustmentItems')
 
   // Generate filename
   const dateStr = formatDateForFilename(adjustmentDate)
