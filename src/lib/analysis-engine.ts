@@ -3,7 +3,8 @@ import type { ParsedOnHandItem } from './excel-parser'
 
 export function runAnalysis(
   templateItems: TemplateItem[],
-  onHandItems: ParsedOnHandItem[]
+  onHandItems: ParsedOnHandItem[],
+  consumableCodes: Set<string> = new Set()
 ): AnalysisResult {
   const result: AnalysisResult = {
     overstocked: [],
@@ -12,6 +13,7 @@ export function runAnalysis(
     negative: [],
     missing: [],
     correct: [],
+    consumable: [],
   }
 
   // Create a map of template items by item code for quick lookup
@@ -46,6 +48,28 @@ export function runAnalysis(
         bin_location: onHandItem.bin_location,
       })
       return // Don't categorize further if negative
+    }
+
+    // Check if item is consumable
+    const isConsumable = consumableCodes.has(itemCodeUpper)
+    if (isConsumable) {
+      // Consumable items with qty > 0 need adjustment to zero
+      if (onHandItem.on_hand > 0) {
+        result.consumable.push({
+          item_name: onHandItem.item_name,
+          inventory_tags: onHandItem.inventory_tags,
+          item_code: onHandItem.item_code,
+          item_description: onHandItem.item_description,
+          available: onHandItem.available,
+          on_order: onHandItem.on_order,
+          on_hold: onHandItem.on_hold,
+          on_hand: onHandItem.on_hand,
+          total_quantity: onHandItem.total_quantity,
+          bin_location: onHandItem.bin_location,
+        })
+      }
+      // Skip further categorization for consumable items (whether qty is 0 or > 0)
+      return
     }
 
     // Check if item is not in template
@@ -116,6 +140,7 @@ export function runAnalysis(
   result.negative.sort((a, b) => a.on_hand - b.on_hand)
   result.missing.sort((a, b) => a.item_code.localeCompare(b.item_code))
   result.correct.sort((a, b) => a.item_code.localeCompare(b.item_code))
+  result.consumable.sort((a, b) => a.item_code.localeCompare(b.item_code))
 
   return result
 }
@@ -128,12 +153,14 @@ export function getAnalysisSummary(result: AnalysisResult) {
     negative: result.negative.length,
     missing: result.missing.length,
     correct: result.correct.length,
+    consumable: result.consumable.length,
     total:
       result.overstocked.length +
       result.understocked.length +
       result.not_in_template.length +
       result.negative.length +
       result.missing.length +
-      result.correct.length,
+      result.correct.length +
+      result.consumable.length,
   }
 }

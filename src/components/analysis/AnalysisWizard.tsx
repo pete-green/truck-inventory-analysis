@@ -9,6 +9,7 @@ import { PrintableReport } from './PrintableReport'
 import { PrintDialog } from './PrintDialog'
 import { parseOnHandFile } from '@/lib/excel-parser'
 import { runAnalysis, getAnalysisSummary } from '@/lib/analysis-engine'
+import { useConsumables } from '@/hooks/useConsumables'
 import { Loader2, AlertCircle, RotateCcw, Printer } from 'lucide-react'
 import type { Template, TemplateItem, AnalysisResult, AnalysisCategory } from '@/types'
 
@@ -26,6 +27,8 @@ export function AnalysisWizard({ templates, getTemplateItems }: AnalysisWizardPr
   const [activeCategory, setActiveCategory] = useState<AnalysisCategory | null>(null)
   const [showPrintDialog, setShowPrintDialog] = useState(false)
   const [reportName, setReportName] = useState('')
+
+  const { fetchConsumableCodes } = useConsumables()
 
   const templateOptions = templates.map((t) => ({
     value: t.id,
@@ -54,8 +57,11 @@ export function AnalysisWizard({ templates, getTemplateItems }: AnalysisWizardPr
     setIsAnalyzing(true)
 
     try {
-      // Get template items
-      const templateItems = await getTemplateItems(selectedTemplateId)
+      // Fetch template items and consumable codes in parallel
+      const [templateItems, consumableCodes] = await Promise.all([
+        getTemplateItems(selectedTemplateId),
+        fetchConsumableCodes(),
+      ])
 
       if (templateItems.length === 0) {
         throw new Error('Selected template has no items')
@@ -68,12 +74,12 @@ export function AnalysisWizard({ templates, getTemplateItems }: AnalysisWizardPr
         throw new Error('On-hand file has no items')
       }
 
-      // Run analysis
-      const analysisResult = runAnalysis(templateItems, onHandItems)
+      // Run analysis with consumable codes
+      const analysisResult = runAnalysis(templateItems, onHandItems, consumableCodes)
       setResult(analysisResult)
 
       // Set default active category to first non-empty category
-      const categories: AnalysisCategory[] = ['negative', 'not_in_template', 'overstocked', 'understocked', 'missing', 'correct']
+      const categories: AnalysisCategory[] = ['consumable', 'negative', 'not_in_template', 'overstocked', 'understocked', 'missing', 'correct']
       for (const cat of categories) {
         if (analysisResult[cat].length > 0) {
           setActiveCategory(cat)

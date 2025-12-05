@@ -38,6 +38,12 @@ const SECTION_CONFIG: {
     color: '#9333ea',
   },
   {
+    key: 'consumable',
+    title: 'CONSUMABLE ITEMS',
+    description: 'Items that need adjustment to zero (purchased via PO)',
+    color: '#0d9488',
+  },
+  {
     key: 'missing',
     title: 'MISSING ITEMS',
     description: 'Items in template but not found on truck',
@@ -133,6 +139,8 @@ export function PrintableReport({ result, templateName, fileName: _fileName, rep
                   <span className="header-divider">|</span>
                   <span style={{ color: '#9333ea' }}>Neg: {result.negative.length}</span>
                   <span className="header-divider">|</span>
+                  <span style={{ color: '#0d9488' }}>Consumable: {result.consumable.length}</span>
+                  <span className="header-divider">|</span>
                   <span style={{ color: '#2563eb' }}>Missing: {result.missing.length}</span>
                   <span className="header-divider">|</span>
                   <span style={{ color: '#16a34a' }}>OK: {result.correct.length}</span>
@@ -171,7 +179,7 @@ export function PrintableReport({ result, templateName, fileName: _fileName, rep
                       {items.length > 0 ? (
                         <table className="print-table">
                           <thead>
-                            {(category === 'not_in_template' || category === 'negative') ? (
+                            {(category === 'not_in_template' || category === 'negative' || category === 'consumable') ? (
                               <tr>
                                 <th style={{ width: '20%' }}>Item Code</th>
                                 <th style={{ width: '50%' }}>Description</th>
@@ -198,7 +206,7 @@ export function PrintableReport({ result, templateName, fileName: _fileName, rep
                             )}
                           </thead>
                           <tbody>
-                            {(category === 'not_in_template' || category === 'negative') ? (
+                            {(category === 'not_in_template' || category === 'negative' || category === 'consumable') ? (
                               <OnHandItemsRows items={items as OnHandItem[]} />
                             ) : category === 'missing' ? (
                               <TemplateItemsRows items={items as TemplateItem[]} />

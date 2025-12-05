@@ -5,7 +5,8 @@ import {
   AlertTriangle,
   MinusCircle,
   PackageX,
-  CheckCircle2
+  CheckCircle2,
+  Flame
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { AnalysisCategory } from '@/types'
@@ -18,6 +19,7 @@ interface SummaryCardsProps {
     negative: number
     missing: number
     correct: number
+    consumable: number
   }
   activeCategory: AnalysisCategory | null
   onCategoryClick: (category: AnalysisCategory) => void
@@ -64,6 +66,14 @@ const CATEGORIES: {
     description: 'Negative inventory',
   },
   {
+    key: 'consumable',
+    label: 'Consumables',
+    icon: Flame,
+    color: 'text-teal-600',
+    bgColor: 'bg-teal-50 hover:bg-teal-100',
+    description: 'Needs adjustment to zero',
+  },
+  {
     key: 'missing',
     label: 'Missing',
     icon: PackageX,
@@ -83,7 +93,7 @@ const CATEGORIES: {
 
 export function SummaryCards({ summary, activeCategory, onCategoryClick }: SummaryCardsProps) {
   return (
-    <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+    <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
       {CATEGORIES.map(({ key, label, icon: Icon, color, bgColor, description }) => (
         <Card
           key={key}

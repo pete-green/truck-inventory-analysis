@@ -40,6 +40,7 @@ export interface AnalysisResult {
   negative: OnHandItem[]
   missing: TemplateItem[]
   correct: AnalyzedItem[]
+  consumable: OnHandItem[]
 }
 
 export interface AnalyzedItem {
@@ -60,3 +61,4 @@ export type AnalysisCategory =
   | 'negative'
   | 'missing'
   | 'correct'
+  | 'consumable'

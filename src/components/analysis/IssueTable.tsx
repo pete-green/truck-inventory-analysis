@@ -28,6 +28,7 @@ const CATEGORY_TITLES: Record<AnalysisCategory, string> = {
   negative: 'Negative Quantity Items',
   missing: 'Missing Items',
   correct: 'Correctly Stocked Items',
+  consumable: 'Consumable Items (Need Adjustment)',
 }
 
 export function IssueTable({ category, result }: IssueTableProps) {
@@ -108,7 +109,7 @@ export function IssueTable({ category, result }: IssueTableProps) {
   )
 
   const renderTable = () => {
-    if (category === 'not_in_template' || category === 'negative') {
+    if (category === 'not_in_template' || category === 'negative' || category === 'consumable') {
       // On-hand items format
       return (
         <Table>
